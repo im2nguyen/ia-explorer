@@ -10,7 +10,7 @@ const Main = () => {
           </h1>
           <p className="text-sm text-gray-600">
             Visualize and explore your information architecture structure using
-            MarkDown.
+            Markdown. This tool automatically saves your Markdown in localStorage.
           </p>
         </div>
       </header>
