@@ -92,7 +92,7 @@ const defaultMarkdown = `## Example IA
         * etc
     * Compare ProductX (/compare)
         * [Overview](https://example.com/productx/compare)
-           * [Overview](https://example.com/productx/compare/details)
+          * [Overview](https://example.com/productx/compare/details)
         * ProductX versus CompetitorA (/competitor-a)
         * ProductX versus CompetitorB (/competitor-b)
 * Getting Started with ProductX (/getting-started)
@@ -106,7 +106,7 @@ const defaultMarkdown = `## Example IA
         * etc
     * Best Practices (/best-practices)
         * [Overview](https://example.com/productx/best-practices)
-           * [Detailed Overview](https://example.com/productx/best-practices/details)
+          * [Detailed Overview](https://example.com/productx/best-practices/details)
         * Performance optimization (/optimization)
         * Security guidelines (/security)
     * Core Concepts (/concepts)

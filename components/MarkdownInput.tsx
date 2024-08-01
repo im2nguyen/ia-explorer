@@ -1,14 +1,100 @@
+import React, { KeyboardEvent, useRef, useEffect } from 'react';
+
 interface MarkdownInputProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-const MarkdownInput = ({ value, onChange }: MarkdownInputProps) => (
-  <textarea
-    className="w-full h-full p-4 font-mono text-sm border border-gray-300 rounded-md"
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-  />
-);
+const MarkdownInput: React.FC<MarkdownInputProps> = ({ value, onChange }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      handleTab(e.currentTarget, e.shiftKey);
+    } else if (e.key === 'Enter') {
+      handleEnter(e);
+    }
+  };
+
+  const handleTab = (textarea: HTMLTextAreaElement, isShiftTab: boolean) => {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    const lines = value.split('\n');
+    let startLine = value.substr(0, start).split('\n').length - 1;
+    let endLine = value.substr(0, end).split('\n').length - 1;
+
+    let modifiedLines = lines.map((line, i) => {
+      if (i >= startLine && i <= endLine) {
+        if (isShiftTab) {
+          return line.replace(/^(\t|    )/, '');
+        } else {
+          return '\t' + line;
+        }
+      }
+      return line;
+    });
+
+    const newValue = modifiedLines.join('\n');
+    onChange(newValue);
+
+    const newStart = modifiedLines.slice(0, startLine).join('\n').length + 
+                     (startLine > 0 ? 1 : 0) +
+                     (start - value.substr(0, start).lastIndexOf('\n') - 1);
+
+    requestAnimationFrame(() => {
+      textarea.setSelectionRange(newStart, newStart);
+    });
+  };
+
+  const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget;
+    const { selectionStart } = textarea;
+    const currentLine = value.substring(0, selectionStart).split('\n').pop() || '';
+    const match = currentLine.match(/^(\s*(?:[-*]|\d+\.)\s*)/);
+    
+    if (match) {
+      e.preventDefault();
+      const indent = match[1];
+
+      // Check if the current line is empty (except for the list marker)
+      if (currentLine.trim() === indent.trim()) {
+        // If empty, remove the list marker
+        const newValue = value.substring(0, selectionStart - indent.length) + '\n' + value.substring(selectionStart);
+        onChange(newValue);
+        const newCursorPosition = selectionStart - indent.length + 1;
+        requestAnimationFrame(() => {
+          textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+        });
+      } else {
+        // If not empty, continue the list
+        const newValue = value.substring(0, selectionStart) + '\n' + indent + value.substring(selectionStart);
+        onChange(newValue);
+        const newCursorPosition = selectionStart + indent.length + 1;
+        requestAnimationFrame(() => {
+          textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [value]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      className="w-full min-h-[200px] p-4 font-mono text-sm border border-gray-300 rounded-md resize-y"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={handleKeyDown}
+    />
+  );
+};
 
 export default MarkdownInput;
