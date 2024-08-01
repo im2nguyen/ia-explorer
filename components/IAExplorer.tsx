@@ -37,17 +37,23 @@ const parseMarkdown = (markdown: string): NavItemData[] => {
       const pathMatch = text.match(/\((\/[^)]+)\)$/);
       const isGenerated = !text.includes("(");
       const isNew = text.includes(" NEW");
+      const isNavHeader = text.startsWith("!");
 
       const newItem: NavItemData = {
         id: id++,
-        text: linkMatch ? linkMatch[1] : text.replace(/\([^)]+\)$/, "").trim(),
-        link: linkMatch ? linkMatch[2] : undefined,
+        text: isNavHeader
+          ? text.substring(1).trim().toUpperCase()
+          : linkMatch
+          ? linkMatch[1]
+          : text.replace(/\([^)]+\)$/, "").trim(),
+        link: isNavHeader ? undefined : linkMatch ? linkMatch[2] : undefined,
         children: [],
         isGenerated,
         isNew,
+        isNavHeader,
       };
 
-      if (pathMatch) {
+      if (pathMatch && !isNavHeader) {
         newItem.filePath = pathMatch[1];
         newItem.url = pathMatch[1];
       }
@@ -56,12 +62,11 @@ const parseMarkdown = (markdown: string): NavItemData[] => {
         stack.pop();
       }
 
-      const currentPath = [
-        ...stack[stack.length - 1].path,
-        getPathSegment(text),
-      ];
+      const currentPath = isNavHeader
+        ? stack[stack.length - 1].path
+        : [...stack[stack.length - 1].path, getPathSegment(text)];
 
-      if (level > 0 && !newItem.filePath) {
+      if (level > 0 && !newItem.filePath && !isNavHeader) {
         if (newItem.text.toLowerCase() === "overview") {
           newItem.url = "/" + currentPath.slice(0, -1).join("/");
           newItem.filePath =

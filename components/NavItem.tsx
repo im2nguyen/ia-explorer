@@ -9,6 +9,7 @@ export interface NavItemData {
   children: NavItemData[];
   isGenerated: boolean;
   isNew?: boolean;
+  isNavHeader?: boolean;
 }
 
 interface NavItemProps {
@@ -30,7 +31,7 @@ const NavItem = ({ item, depth = 0, onSelect, expandedItems, onToggle }: NavItem
   };
 
   const getTextColor = () => {
-    if (!item.filePath && !item.url) return 'text-red-500';
+    if (!item.filePath && !item.url && !item.isNavHeader) return 'text-red-500';
     return '';
   };
 
@@ -57,10 +58,10 @@ const NavItem = ({ item, depth = 0, onSelect, expandedItems, onToggle }: NavItem
             ))}
           </div>
         )}
-        <span className={`${depth > 0 ? 'text-gray-600' : 'font-semibold'} flex-grow ${getTextColor()}`}>
+        <span className={`${item.isNavHeader ? 'font-bold uppercase' : depth > 0 ? 'text-gray-600' : 'font-semibold'} flex-grow ${getTextColor()}`}>
           {displayText}
         </span>
-        {hasChildren && (
+        {hasChildren && !item.isNavHeader && (
           <span className="ml-2">
             {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </span>

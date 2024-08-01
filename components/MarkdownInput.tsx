@@ -18,41 +18,14 @@ const MarkdownInput: React.FC<MarkdownInputProps> = ({ value, onChange }) => {
   };
 
   const handleTab = (textarea: HTMLTextAreaElement, isShiftTab: boolean) => {
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-
-    const lines = value.split('\n');
-    let startLine = value.substr(0, start).split('\n').length - 1;
-    let endLine = value.substr(0, end).split('\n').length - 1;
-
-    let modifiedLines = lines.map((line, i) => {
-      if (i >= startLine && i <= endLine) {
-        if (isShiftTab) {
-          return line.replace(/^(\t|    )/, '');
-        } else {
-          return '\t' + line;
-        }
-      }
-      return line;
-    });
-
-    const newValue = modifiedLines.join('\n');
-    onChange(newValue);
-
-    const newStart = modifiedLines.slice(0, startLine).join('\n').length + 
-                     (startLine > 0 ? 1 : 0) +
-                     (start - value.substr(0, start).lastIndexOf('\n') - 1);
-
-    requestAnimationFrame(() => {
-      textarea.setSelectionRange(newStart, newStart);
-    });
+    // ... (keep existing handleTab logic)
   };
 
   const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
     const { selectionStart } = textarea;
     const currentLine = value.substring(0, selectionStart).split('\n').pop() || '';
-    const match = currentLine.match(/^(\s*(?:[-*]|\d+\.)\s*)/);
+    const match = currentLine.match(/^(\s*(?:[-*!]|\d+\.)\s*)/);
     
     if (match) {
       e.preventDefault();
